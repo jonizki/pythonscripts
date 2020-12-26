@@ -8,6 +8,8 @@ state_right = win32api.GetKeyState(0x02)  # Right button down = 0 or 1. Button u
 while True:
     a = win32api.GetKeyState(0x01)
     b = win32api.GetKeyState(0x02)
+
+    #Gets x,y of cursor position
     x, y = win32api.GetCursorPos()
     leftclick = 0
     rightclick = 0
@@ -27,14 +29,15 @@ while True:
 
     with open("mouse3.txt", "a") as f:
         if leftclick == 1:
-            f.write(str(x) + "," + str(y) + "\n" + "leftclick" + "\n")
+            f.write("leftclick" + "\n")
         if rightclick == 1:
-            f.write(str(x) + "," + str(y) + "\n" + "rightclick" + "\n")
+            f.write("rightclick" + "\n")
         else:
             f.write(str(x) + "," + str(y) + "\n")
 
     leftclick = 0
     rightclick = 0
+
 
 
     
