@@ -1,0 +1,89 @@
+import requests
+import pandas as pd
+import json
+
+def get_Company_Data():
+    try:
+        ask_For_Company = input("Yrityksen nimi lyhennyksen: ")
+
+        #Website Url
+        url = "https://api.nasdaq.com/api/company/"+ ask_For_Company + "/financials?frequency=1"
+        #Get data
+
+        try:
+            response = requests.get(url, headers={'User-agent': 'Mozilla/5.0'})
+        except:
+            print("Error fetching data")
+            get_Company_Data()
+            
+        if response.status_code == 200:
+            print("Fetching data for " + ask_For_Company)
+        else:
+            print("Cant fetch data retry")
+            get_Company_Data()
+
+        #Turns fetched data to text
+        data = response.text
+        #Contains all the json data
+        parse_json = json.loads(data)
+      
+        #statements for income
+        income_statement = parse_json["data"]["incomeStatementTable"]
+
+        #statements for balance
+        balance_sheet = parse_json["data"]["balanceSheetTable"]
+
+        #These will be top rows in excel for income statement
+        headers = income_statement["headers"]
+
+        #These will be top rows in excel for balance sheet
+        headers_balance = balance_sheet["headers"]
+
+        #List of income statement
+        header_List = []
+        for i in headers:
+            header_List.append(headers[i])
+
+        #List for balance sheet
+        header_List_Balance = []
+        for i in headers_balance:
+            header_List_Balance.append(headers_balance[i])
+
+        #Makes list of lists for income statement
+        list_Of_Data = [] 
+        #Every row has 5 statements -> add them to excel
+        for rows in income_statement["rows"]:
+            lista = []
+            for i in rows:
+                lista.append(rows[i])
+            list_Of_Data.append(lista)
+
+        #Makes list of lists for balance sheet
+        list_Of_Data_Balance = [] 
+        #Every row has 5 statements -> add them to excel
+        for rows in balance_sheet["rows"]:
+            lista = []
+            for i in rows:
+                lista.append(rows[i])
+            list_Of_Data_Balance.append(lista)
+
+        print("Making Excel file")
+
+        #Makes columns for excel file
+        df_headers = pd.DataFrame(columns=[header_List,list_Of_Data[0],list_Of_Data[1],list_Of_Data[2],list_Of_Data[3],list_Of_Data[4],list_Of_Data[5],list_Of_Data[6],list_Of_Data[7],list_Of_Data[8],list_Of_Data[9],list_Of_Data[10],list_Of_Data[11],list_Of_Data[12],list_Of_Data[13],list_Of_Data[14],list_Of_Data[15],list_Of_Data[16],list_Of_Data[17],list_Of_Data[18]])
+        df_headers_Balance = pd.DataFrame(columns=[header_List_Balance,list_Of_Data_Balance[0],list_Of_Data_Balance[1],list_Of_Data_Balance[2],list_Of_Data_Balance[3],list_Of_Data_Balance[4],list_Of_Data_Balance[5],list_Of_Data_Balance[6],list_Of_Data_Balance[7],list_Of_Data_Balance[8],list_Of_Data_Balance[9],list_Of_Data_Balance[10],list_Of_Data_Balance[11],list_Of_Data_Balance[12],list_Of_Data_Balance[13],list_Of_Data_Balance[14],list_Of_Data_Balance[15],list_Of_Data_Balance[16],list_Of_Data_Balance[17],list_Of_Data_Balance[18],list_Of_Data_Balance[18],list_Of_Data_Balance[18],list_Of_Data_Balance[19],list_Of_Data_Balance[20],list_Of_Data_Balance[21],list_Of_Data_Balance[22],list_Of_Data_Balance[23],list_Of_Data_Balance[24],list_Of_Data_Balance[25],list_Of_Data_Balance[26],list_Of_Data_Balance[27],list_Of_Data_Balance[28],list_Of_Data_Balance[29],list_Of_Data_Balance[30],list_Of_Data_Balance[31]])
+
+        #Writes the data to excel    
+        with pd.ExcelWriter(ask_For_Company + '.xlsx') as writer:
+            df_headers.to_excel(writer, sheet_name=ask_For_Company + "_Income_Statement")
+            df_headers_Balance.to_excel(writer, sheet_name=ask_For_Company + "_Balance_Sheet")
+    except:
+        print("No data found for company")
+        get_Company_Data()
+        
+
+def main():
+    while True:
+        get_Company_Data()
+
+main()
